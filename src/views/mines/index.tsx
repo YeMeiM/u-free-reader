@@ -220,6 +220,7 @@ export default function MinesPage() {
         const oldRecord = localStorage.getItem(`USER_LEVEL_RECORD_${level}`);
         if(!oldRecord || gameTime.current < Number(oldRecord)) {
           localStorage.setItem(`USER_LEVEL_RECORD_${level}`, gameTime.current.toString());
+          setGameRecord(`${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`)
         }
         if (!oldRecord && level < GAME_LEVEL.length - 1) setLevel(level + 1);
       } else alert('游戏结束');
