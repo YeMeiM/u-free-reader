@@ -6,6 +6,9 @@
   --t-a-hover-color: #747bff;
   --t-button-bg-color: #f9f9f9;
   --t-button-bg-hover-color: #646cff;
+  --t-bg2-color: #cbcaca;
+  --t-theme-color: #646cff;
+  --t-theme-bg-color: #8a8ff6;
 }
 
 // 黑暗模式
@@ -14,15 +17,14 @@
   --t-bg-color: #242424;
   --t-a-hover-color: #535bf2;
   --t-button-bg-color: #1a1a1a;
+  --t-bg2-color: #5b5b5b;
 }
 
 :root{
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
   font-weight: 400;
   color-scheme: light dark;
   color: var(--t-text-color);
-  background-color: var(--t-bg-color);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -49,6 +51,7 @@ button {
   font-weight: 500;
   font-family: inherit;
   background-color: var(--t-button-bg-color);
+  color: var(--t-text-color);
   cursor: pointer;
 }
 

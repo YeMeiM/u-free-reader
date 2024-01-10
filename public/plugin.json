@@ -1,16 +1,15 @@
 {
   "main": "index.html",
-  "logo": "vite.svg",
-  "preload": "preload.js",
+  "logo": "logo.png",
   "features": [
     {
       "code": "fr",
-      "icon": "vite.svg",
+      "icon": "logo.png",
       "explain": "自由阅读",
       "cmds":["fr", "自由阅读"]
     }
   ],
   "development": {
-    "main": "http://127.0.0.1:8086"
+    "main": "http://localhost:8086"
   }
 }

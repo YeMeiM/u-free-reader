@@ -1,0 +1,128 @@
+.mines-page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+
+  .header-bar {
+    height: 60px;
+    background-color: inherit;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    color: #f6dec9;
+    font-size: 20px;
+
+    .level-text{
+      margin-left: 50px;
+    }
+
+    .weight{
+      font-weight: bold;
+    }
+
+    .record-text{
+      margin-left: auto;
+    }
+
+    .button{
+      margin-left: 14px;
+      background-color: #f6dec9;
+      height: 30px;
+      width: 30px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+
+  .body-container {
+    overflow: auto;
+    flex: 1;
+    height: 0;
+    padding: 0 30px 30px;
+    box-sizing: border-box;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .board {
+    background-color: #f6dec9;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    display: inline-flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    .mines-row {
+      flex: 1;
+      display: flex;
+      margin-top: 10px;
+
+      &:first-child {
+        margin-top: 0;
+      }
+
+      .mines-col {
+        flex: 1;
+        margin-left: 10px;
+        width: 60px;
+        height: 60px;
+        flex-shrink: 0;
+        user-select: none;
+        cursor: pointer;
+
+        &:first-child {
+          margin-left: 0;
+        }
+
+        .mines-item {
+          width: 100%;
+          height: 100%;
+          border-radius: 6px;
+          background-image: linear-gradient(125deg, #CCA271, #ffc897);
+          position: relative;
+          overflow: hidden;
+
+          &:hover{
+            background-image: linear-gradient(125deg, #ffcf90, #eebe9d);
+          }
+
+          .item-cover {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+          }
+
+          .item-flag {
+            color: #56b44f;
+          }
+
+          .item-open {
+            border-radius: inherit;
+            background-color: #f6dec9;
+            box-shadow: 0 0 20px #c2b3a9 inset;
+          }
+
+          .item-mine {
+            color: red;
+            font-weight: bold;
+          }
+
+          .item-count {
+            color: #333333;
+          }
+        }
+      }
+    }
+  }
+}
