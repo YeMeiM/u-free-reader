@@ -217,8 +217,11 @@ export default function MinesPage() {
         const {m, s} = formatTime(gameTime.current);
         if (!m) alert(`过关了！耗时${s}秒`);
         else alert(`过关了！耗时${m}分${s}秒`);
-        localStorage.setItem(`USER_LEVEL_RECORD_${level}`, gameTime.current.toString());
-        if (level < GAME_LEVEL.length - 1) setLevel(level + 1);
+        const oldRecord = localStorage.getItem(`USER_LEVEL_RECORD_${level}`);
+        if(!oldRecord || gameTime.current < Number(oldRecord)) {
+          localStorage.setItem(`USER_LEVEL_RECORD_${level}`, gameTime.current.toString());
+        }
+        if (!oldRecord && level < GAME_LEVEL.length - 1) setLevel(level + 1);
       } else alert('游戏结束');
       dispatch({type: 'init', value: GAME_LEVEL[level]})
       setGameStatus(-1)
