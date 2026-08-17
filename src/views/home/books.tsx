@@ -1,5 +1,6 @@
 
 export interface BookshelfType {
+  id: string;
   cover: string;
   name: string;
   isLocal: boolean;

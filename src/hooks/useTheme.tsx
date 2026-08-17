@@ -20,11 +20,11 @@ function setTheme(theme?: THEME_NAME){
 /**
  * 修改主题
  */
-export default function useTheme(){
+export default function useTheme(): [THEME_NAME, typeof setTheme]{
   useEffect(() => {
-    if(!init) return;
+    if(init) return;
     init = true;
-    setTheme();
+    setTheme('dark');
   },[]);
 
   return [currentTheme, setTheme];

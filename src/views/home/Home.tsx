@@ -1,61 +1,50 @@
+import {HomeToolsBar, BookBox} from './components/ui/layout_ui.tsx'
 import './home.scss'
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {getBookshelf} from "./books.tsx";
-import {chooseFile} from "../../utils/fm.ts";
-import {readEPUB} from "../../utils/epub.ts";
+import {EPUBInfo} from "@/utils/epub.ts";
+import type {BookBasicInfo, BookBoxProps, HomeToolsBarProps} from "@/views/home/Home.type.ts";
 
-interface BookBoxProps {
-  cover: string;
-  name: string;
-}
+/**
+ * 首页
+ * @returns
+ */
+export default function HomePage() {
 
-function BookBox(props: BookBoxProps) {
-  let coverEl;
-  if (props.cover) coverEl = <img src={props.cover} alt="" className="book-cover"/>
-  else coverEl = <div className="book-cover empty-holder" >无封面</div>
-
-  return (<div className="book-bok-component">
-    {coverEl}
-    <div className="book-name">{props.name || '未命名'}</div>
-  </div>)
-}
-
-function HomeToolsBar() {
-
-  const onAddBook = async function(){
-    try{
-      const files = await chooseFile({
-        accept: 'application/epub+zip'
-      });
-      if(files.length === 0) return;
-      await readEPUB(files[0]);
-    }catch(e){
-      console.log('e', e)
-    }
-  }
-
-  return (<div className="home-tools-bar-component" >
-    <div className="bar-title">书架</div>
-    <div className="tools-group">
-      <button className="button add-book" onClick={onAddBook} >添加</button>
-    </div>
-  </div>)
-}
-
-export default function HomePage(){
-
-  const [books, setBooks] = useState<BookBoxProps[]>([])
+  const [books, setBooks] = useState<BookBasicInfo[]>([]);
+  const {current: bookFiles} = useRef<Record<string, EPUBInfo>>({});
 
   useEffect(() => {
     // 获取书籍列表
     getBookshelf().then(setBooks);
   }, []);
 
-  return <div className="home-page-container" >
-    <HomeToolsBar />
+  /**
+   * 将书籍信息添加到列表中
+   * @param book
+   * @param epubInfo
+   */
+  const onAddBookBox: HomeToolsBarProps['onAddBookBox'] = function (book, epubInfo) {
+    // console.log('book', book)
+    bookFiles[book.id] = epubInfo;
+    setBooks([...books, book]);
+  }
+
+  /**
+   * 点击书籍时
+   * @param book
+   */
+  const onClickBook: BookBoxProps['onClick'] = async function (book) {
+    const bookFile = bookFiles[book.id];
+    const list = await bookFile.getNavList();
+    console.log(book.name, list)
+  }
+
+  return <div className="home-page-container">
+    <HomeToolsBar onAddBookBox={onAddBookBox}/>
     <div className="bookshelf-container">
       {
-        books.map((it, index) => (<BookBox key={index} cover={it.cover} name={it.name} />))
+        books.map(it => (<BookBox key={it.id} book={it} onClick={onClickBook}/>))
       }
     </div>
   </div>

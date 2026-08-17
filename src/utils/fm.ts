@@ -5,14 +5,14 @@ let _reject_: ((error: unknown) => void) | undefined;
 
 function clearFileEL() {
   clearTimeout(focusTimer)
-  _reject_ = _reject_ = undefined;
-  if(_input_el_) _input_el_.value = '';
+  _reject_ = _resolve_ = undefined;
+  if (_input_el_) _input_el_.value = '';
   removeEventListener('focus', onChooseFileFocus)
 }
 
 function onFileElChange() {
   if (!_resolve_) return;
-  if(_input_el_.files) _resolve_(Array.from(_input_el_.files));
+  if (_input_el_.files) _resolve_(Array.from(_input_el_.files));
   else _resolve_([]);
   clearFileEL();
 }
@@ -68,10 +68,15 @@ export function chooseFile({multiple = true, accept = 'image/*'}: Partial<Choose
   })
 }
 
-export function downloadFile(url: string | Blob, name = ''){
+/**
+ * 下载文件
+ * @param url 文件地址或文件 blob 对象
+ * @param name 文件名，为空时使用url名称，如果为blob对象或url不存在名称，则必传
+ */
+export function downloadFile(url: string | Blob, name = '') {
   let dUrl: string
-  if(typeof url !== 'string'){
-    if(!name && url instanceof File) name = url.name;
+  if (typeof url !== 'string') {
+    if (!name && url instanceof File) name = url.name;
     dUrl = URL.createObjectURL(url);
   } else {
     dUrl = url;
@@ -80,7 +85,34 @@ export function downloadFile(url: string | Blob, name = ''){
   tagA.href = dUrl;
   tagA.download = name;
   tagA.click();
-  if(typeof url !== 'string'){
-    setTimeout(() => URL.revokeObjectURL(dUrl), 3)
-  }
+  if (url !== dUrl) setTimeout(() => URL.revokeObjectURL(dUrl), 3);
+}
+
+
+/**
+ * 返回数据流二进制数据
+ * @param file
+ */
+export function readFile(file: Blob): Promise<ArrayBuffer>;
+export function readFile(file: Blob, type: 'binaryString' | 'text' | 'base64'): Promise<string>;
+/**
+ * 读取文件，传入一个 blob 或 file 对象，返回读取后的数据
+ * @param file 读取的文件
+ * @param type 需要读取的数据类型
+ */
+export function readFile(file: Blob, type: 'arrayBuffer' | 'binaryString' | 'text' | 'base64' = 'arrayBuffer'): Promise<ArrayBuffer | string> {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = (res) => {
+      if (!res.target || !res.target.result) return reject(new Error('文件读取失败'));
+      resolve(res.target.result);
+    }
+    fr.onerror = () => {
+      reject(new Error('文件读取失败'))
+    }
+    if (type === 'arrayBuffer') fr.readAsArrayBuffer(file);
+    else if (type === 'base64') fr.readAsDataURL(file);
+    else if (type === 'text') fr.readAsText(file);
+    else if (type === 'binaryString') fr.readAsBinaryString(file)
+  })
 }

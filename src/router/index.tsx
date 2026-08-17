@@ -5,7 +5,8 @@ import {lazy} from "react";
 export const router = createHashRouter([
   {
     path: '/',
-    element: <LazyElement ele={lazy(() => import('@/views/home/Home'))} />,
+    element: <LazyElement ele={lazy(() => import('@/views/home/Home'))}>
+    </LazyElement>,
   },
   {
     path: '/test',
@@ -14,5 +15,9 @@ export const router = createHashRouter([
   {
     path: '/mines',
     element: <LazyElement ele={lazy(() => import('@/views/mines'))} />
+  },
+  {
+    path: '/tools',
+    element: <LazyElement ele={lazy(() => import('@/views/tools/layout'))} />
   }
 ])

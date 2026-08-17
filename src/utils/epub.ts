@@ -1,5 +1,6 @@
 import jszip from 'jszip'
 import {parseXML, readXML, XmlJsonData} from "./xml2json.ts";
+import {wu} from "@/utils/common.ts";
 
 export interface BookNavItem {
   title: string,
@@ -29,7 +30,11 @@ export interface AsyncFileFunction {
 
 export interface EPUBInfo {
   /**
-   * 书籍唯一标识
+   * md5识别码，以此为主，书籍唯一识别码可能为空或者重复
+   */
+  md5: string;
+  /**
+   * 书籍唯一标识，由于本id为书籍文件中的id，所以可能为空或者重复
    */
   identifier: string;
   /**
@@ -72,7 +77,7 @@ export interface EPUBInfo {
    * @param onUpdate 当文件更新时执行
    */
   asyncFile<T extends keyof OutputByType>(
-      path: string, type: T, onUpdate?: jszip.OnUpdateCallback
+    path: string, type: T, onUpdate?: jszip.OnUpdateCallback
   ): Promise<OutputByType[T]>
 
   [prop: string]: any;
@@ -93,15 +98,15 @@ const META_DATA_MAP: Record<string, keyof EPUBInfo> = {
 
 /**
  * 填充metadata数据
- * @param info
- * @param meta
- * @param identifier
+ * @param info 信息对象
+ * @param meta 元数据
+ * @param identifier id 校验，为空字符串则表示不进行校验
  */
 function fillMetaData(info: Partial<EPUBInfo>, meta: XmlJsonData, identifier: string) {
   for (const item of meta.children) {
     if (item.name === 'meta' && item.attrs.name === 'cover') info.cover = item.attrs.content;
     else if (META_DATA_MAP[item.name]) {
-      if (item.name !== 'dc:identifier' || item.attrs.id !== identifier) continue
+      if (identifier && item.name === 'dc:identifier' && item.attrs.id !== identifier) continue
       info[META_DATA_MAP[item.name]] = item.text;
     }
   }
@@ -133,8 +138,10 @@ function initNavList(ncxXml: Document, dirPath: string) {
 }
 
 export async function readEPUB(file: File) {
-  const epubInfo: Partial<EPUBInfo> = {};
-  const zipRes = await jszip.loadAsync(file);
+  const arrayBuffer = await file.arrayBuffer();
+  const md5 = wu().calculate_md5(new Uint8Array(arrayBuffer));
+  const epubInfo: Partial<EPUBInfo> = {md5};
+  const zipRes = await jszip.loadAsync(arrayBuffer);
   // console.log('dirs', zipRes.files)
 
   // 内容固定，不需要读取
@@ -143,9 +150,9 @@ export async function readEPUB(file: File) {
 
   // opf文件路径
   const opfPath = readXML(await zipRes.files['META-INF/container.xml']
-      .async('string'))
-      .getElementsByTagName('rootfile')[0]
-      .getAttribute('full-path')!;
+    .async('string'))
+    .getElementsByTagName('rootfile')[0]
+    .getAttribute('full-path')!;
   // opfXML文档对象
   const opfXml = readXML(await zipRes.file(opfPath)!.async('string'));
   // opf文档中metadata标签json数据
@@ -166,8 +173,8 @@ export async function readEPUB(file: File) {
     if (epubInfo.navList) return epubInfo.navList;
     // ncx文档
     const ncxXml = readXML(
-        await zipRes.files[dirPath + opfXml.getElementById('ncx')!
-            .getAttribute('href')].async('string'));
+      await zipRes.files[dirPath + opfXml.getElementById('ncx')!
+        .getAttribute('href')].async('string'));
     epubInfo.navList = initNavList(ncxXml, dirPath);
     return epubInfo.navList;
   };

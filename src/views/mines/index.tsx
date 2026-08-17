@@ -210,7 +210,7 @@ export default function MinesPage() {
   const gameTime = useRef(0);
   const [gameRecord, setGameRecord] = useState('');
 
-  const gameOver = function (success = false) {
+  const gameOver = function (success = false) { 
     setGameStatus(1)
     setTimeout(() => {
       if (success) {
